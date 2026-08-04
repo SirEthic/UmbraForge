@@ -21,6 +21,9 @@ var _last_occluder_transforms: Array[Transform2D] = []
 var _unshaded_material: CanvasItemMaterial
 
 func _ready() -> void:
+	# Force shadows to render behind all characters and interactive objects
+	z_index = -1
+	
 	shadow_body = AnimatableBody2D.new()
 	shadow_body.sync_to_physics = true
 	
@@ -132,7 +135,8 @@ func _generate_shadow_colliders(light_pos: Vector2, occluders: Array[LightOcclud
 		
 	# Disable unused nodes
 	for i in range(all_shadow_polys.size(), _generated_colliders.size()):
-		_generated_colliders[i].set_deferred("disabled", true)
+		if not _generated_colliders[i].disabled:
+			_generated_colliders[i].set_deferred("disabled", true)
 		_generated_visuals_poly[i].visible = false
 		_generated_visuals_line[i].visible = false
 		
@@ -147,7 +151,8 @@ func _generate_shadow_colliders(light_pos: Vector2, occluders: Array[LightOcclud
 			local_poly.append(shadow_body.global_transform.affine_inverse() * pt)
 			
 		col.polygon = local_poly
-		col.set_deferred("disabled", false)
+		if col.disabled:
+			col.set_deferred("disabled", false)
 		
 		vis_poly.polygon = local_poly
 		vis_poly.visible = true
