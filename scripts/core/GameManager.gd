@@ -29,6 +29,12 @@ func _setup_inputs() -> void:
 		"switch_char": [JOY_BUTTON_Y],
 		"quit": [JOY_BUTTON_BACK]
 	}
+	var joy_motions = {
+		"move_left": {"axis": JOY_AXIS_LEFT_X, "dir": -1.0},
+		"move_right": {"axis": JOY_AXIS_LEFT_X, "dir": 1.0},
+		"move_up": {"axis": JOY_AXIS_LEFT_Y, "dir": -1.0},
+		"move_down": {"axis": JOY_AXIS_LEFT_Y, "dir": 1.0}
+	}
 	
 	for action in key_actions:
 		if not InputMap.has_action(action): InputMap.add_action(action)
@@ -42,6 +48,12 @@ func _setup_inputs() -> void:
 		for joycode in joy_actions[action]:
 			var event = InputEventJoypadButton.new()
 			event.button_index = joycode
+			InputMap.action_add_event(action, event)
+			
+		if joy_motions.has(action):
+			var event = InputEventJoypadMotion.new()
+			event.axis = joy_motions[action].axis
+			event.axis_value = joy_motions[action].dir
 			InputMap.action_add_event(action, event)
 
 # Unhandled input gracefully manages event triggers natively

@@ -105,6 +105,16 @@ func _get_or_create_body(occ: LightOccluder2D) -> AnimatableBody2D:
 
 func _generate_shadow_colliders(light_pos: Vector2, occluders: Array[LightOccluder2D]) -> void:
 	for occluder_node in occluders:
+		var body := _get_or_create_body(occluder_node)
+		
+		if not occluder_node.is_visible_in_tree():
+			body.process_mode = Node.PROCESS_MODE_DISABLED
+			body.visible = false
+			continue
+			
+		body.process_mode = Node.PROCESS_MODE_INHERIT
+		body.visible = true
+		
 		if not occluder_node.occluder:
 			continue
 			
@@ -146,7 +156,6 @@ func _generate_shadow_colliders(light_pos: Vector2, occluders: Array[LightOcclud
 				if res.size() > 0:
 					merged_poly = res[0] # The 0th index is the unified outer boundary. Holes are discarded.
 					
-		var body = _get_or_create_body(occluder_node)
 		_sync_body_shapes(body, merged_poly)
 
 func _clear_all_shadows() -> void:
