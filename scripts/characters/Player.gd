@@ -6,6 +6,13 @@ class_name Player
 @export var acceleration: float = 2000.0
 @export var friction: float = 1500.0
 
+@export_group("Platformer Polish")
+@export var coyote_time: float = 0.15
+@export var jump_buffer_time: float = 0.15
+
+var _coyote_timer: float = 0.0
+var _jump_buffer_timer: float = 0.0
+
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var is_active: bool = true
 
@@ -17,6 +24,17 @@ func _ready() -> void:
 	collision_mask = 1 | 4
 
 func _physics_process(delta: float) -> void:
+	# Update polish timers
+	if is_on_floor():
+		_coyote_timer = coyote_time
+	else:
+		_coyote_timer -= delta
+		
+	if Input.is_action_just_pressed("jump"):
+		_jump_buffer_timer = jump_buffer_time
+	else:
+		_jump_buffer_timer -= delta
+
 	# Apply gravity safely
 	if not is_on_floor():
 		velocity.y += gravity * delta
@@ -26,9 +44,11 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 
-	# Handle Jump using Godot Input Map
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	# Handle Jump gracefully using buffers
+	if _jump_buffer_timer > 0.0 and _coyote_timer > 0.0:
 		velocity.y = jump_velocity
+		_jump_buffer_timer = 0.0 # Consume jump buffer
+		_coyote_timer = 0.0      # Consume coyote time
 
 	# Get input direction gracefully with acceleration/deceleration
 	var direction := Input.get_axis("move_left", "move_right")

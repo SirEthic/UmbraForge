@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/characters/Drone.gd" id="2_dron"]
 [ext_resource type="Script" path="res://scripts/core/GameManager.gd" id="3_gm"]
 [ext_resource type="Script" path="res://scripts/utils/ShadowColliderGenerator.gd" id="4_scg"]
+[ext_resource type="Script" path="res://scripts/core/CameraController.gd" id="5_cam"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 16.0
@@ -76,10 +77,6 @@ script = ExtResource("1_play")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = SubResource("CapsuleShape2D_player")
 
-[node name="Camera2D" type="Camera2D" parent="Player"]
-zoom = Vector2(1.2, 1.2)
-position_smoothing_enabled = true
-
 [node name="Drone" type="CharacterBody2D" parent="."]
 position = Vector2(300, 200)
 script = ExtResource("2_dron")
@@ -99,6 +96,12 @@ script = ExtResource("4_scg")
 light_source = NodePath("../Drone/PointLight2D")
 occluders_parent = NodePath("../Obstacle")
 shadow_length = 2000.0
+
+[node name="CameraController" type="Camera2D" parent="." node_paths=PackedStringArray("player", "drone")]
+zoom = Vector2(1.2, 1.2)
+script = ExtResource("5_cam")
+player = NodePath("../Player")
+drone = NodePath("../Drone")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
