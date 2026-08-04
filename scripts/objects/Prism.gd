@@ -15,7 +15,11 @@ func _ready() -> void:
 	initial_position = global_position
 	light.enabled = false
 	if shadow_generator and not shadow_generator.occluders_parent:
-		shadow_generator.occluders_parent = get_parent()
+		var occluders = get_tree().current_scene.find_child("Occluders", true, false)
+		if occluders:
+			shadow_generator.occluders_parent = occluders
+		else:
+			shadow_generator.occluders_parent = get_parent()
 
 func respawn() -> void:
 	_needs_teleport = true
