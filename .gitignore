@@ -7,3 +7,9 @@ export_presets.cfg.credentials
 # Mono-specific ignores
 .mono/
 data_*/
+
+# Documentation and root-level context screenshots
+/docs/
+/*.png
+/*.jpg
+/*.jpeg

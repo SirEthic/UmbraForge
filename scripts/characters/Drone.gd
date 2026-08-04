@@ -1,36 +1,41 @@
 extends CharacterBody2D
 class_name Drone
 
-@export var speed: float = 400.0
-@export var acceleration: float = 3000.0
-@export var friction: float = 2500.0
+@export var smooth_speed: float = 15.0
 
-var is_active: bool = false:
-	set(value):
-		is_active = value
-		queue_redraw()
+var player: Node2D
+var _is_dragging: bool = false
+var _pulse_time: float = 0.0
 
 func _ready() -> void:
-	# Architecture: Set Drone to Layer 4 (bit value 8).
-	collision_layer = 8
-	# Ensure Drone ONLY collides with the World (Layer 1).
-	# It explicitly ignores the Player (Layer 2) and Shadows (Layer 3).
-	collision_mask = 1
+	collision_layer = 0
+	collision_mask = 0
+	player = get_tree().current_scene.find_child("Player")
 
-func _physics_process(delta: float) -> void:
-	if not is_active:
-		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
-		move_and_slide()
-		return
-
-	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+func _process(delta: float) -> void:
+	_pulse_time += delta
+	_is_dragging = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 	
-	if input_dir != Vector2.ZERO:
-		velocity = velocity.move_toward(input_dir * speed, acceleration * delta)
-	else:
-		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
-
-	move_and_slide()
+	if _is_dragging:
+		global_position = global_position.lerp(get_global_mouse_position(), 1.0 - exp(-smooth_speed * delta))
+		
+	# Instant recall mechanic: Retrieve the Drone instantly without dragging it across the screen!
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		if is_instance_valid(player):
+			global_position = player.global_position + Vector2(0, -50)
+			
+	# Request visual redraw every frame for the tether and animations
+	queue_redraw()
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 12, Color.GOLD if is_active else Color.DIM_GRAY)
+	# 1. Draw a faint magical tether connecting the Drone to the Player
+	if is_instance_valid(player):
+		var local_player_pos = to_local(player.global_position)
+		draw_line(Vector2.ZERO, local_player_pos, Color(1.5, 1.2, 0.8, 0.2), 2.0)
+		
+	# 2. Visual State Feedback
+	# If dragging, glow bright white-gold. If locked, warm gold with a gentle pulse.
+	var core_color = Color(2.0, 1.8, 1.2, 1.0) if _is_dragging else Color(1.5, 1.2, 0.8, 1.0)
+	var core_radius = 8.0 + (2.0 * sin(_pulse_time * 5.0) if not _is_dragging else 0.0)
+	
+	draw_circle(Vector2.ZERO, core_radius, core_color)

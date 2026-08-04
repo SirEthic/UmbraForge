@@ -1,0 +1,169 @@
+[gd_scene load_steps=12 format=3 uid="uid://d0m5e4x0h2j3"]
+
+[ext_resource type="Script" path="res://scripts/characters/Player.gd" id="1_play"]
+[ext_resource type="Script" path="res://scripts/characters/Drone.gd" id="2_dron"]
+[ext_resource type="Script" path="res://scripts/core/GameManager.gd" id="3_gm"]
+[ext_resource type="Script" path="res://scripts/utils/ShadowColliderGenerator.gd" id="4_scg"]
+[ext_resource type="Script" path="res://scripts/core/CameraController.gd" id="5_cam"]
+[ext_resource type="PackedScene" uid="uid://boxcrate123" path="res://scenes/objects/Crate.tscn" id="6_crate"]
+[ext_resource type="Script" path="res://scripts/core/KillVolume.gd" id="7_kv"]
+[ext_resource type="PackedScene" uid="uid://prismbox456" path="res://scenes/objects/Prism.tscn" id="8_prism"]
+[ext_resource type="Texture2D" uid="uid://c8d3ymryv1prp" path="res://assets/textures/bg_cave.jpg" id="10_bg"]
+[ext_resource type="Texture2D" path="res://assets/textures/metal.jpg" id="11_metal"]
+[ext_resource type="Script" path="res://scripts/core/DynamicParallax.gd" id="12_dyn"]
+[ext_resource type="Script" path="res://scripts/core/LevelFinish.gd" id="13_lf"]
+[ext_resource type="Script" path="res://scripts/objects/Oscillator.gd" id="14_osc"]
+[ext_resource type="Script" path="res://scripts/core/LevelDoor.gd" id="15_ld"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kill"]
+size = Vector2(10000, 500)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
+radius = 16.0
+height = 64.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_drone"]
+radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_barrier"]
+size = Vector2(100, 1000)
+
+[sub_resource type="Gradient" id="Gradient_light"]
+offsets = PackedFloat32Array(0, 0.7)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+gradient = SubResource("Gradient_light")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.8, 0.8)
+width = 1024
+height = 1024
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_box"]
+polygon = PackedVector2Array(-50, -25, 50, -25, 50, 25, -50, 25)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_tall"]
+polygon = PackedVector2Array(-25, -100, 25, -100, 25, 100, -25, 100)
+
+[sub_resource type="Environment" id="Environment_glow"]
+background_mode = 3
+glow_enabled = true
+glow_levels/1 = 1.0
+glow_levels/2 = 1.0
+glow_levels/4 = 1.0
+glow_levels/6 = 1.0
+glow_levels/7 = 1.0
+glow_intensity = 0.8
+glow_strength = 1.1
+glow_blend_mode = 0
+
+[node name="Prototype" type="Node2D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_glow")
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+script = ExtResource("12_dyn")
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.2, 0.2)
+motion_mirroring = Vector2(4128, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer"]
+scale = Vector2(3, 3)
+texture = ExtResource("10_bg")
+centered = false
+modulate = Color(0.3, 0.35, 0.45, 1)
+
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("player", "drone")]
+script = ExtResource("3_gm")
+player = NodePath("../Player")
+drone = NodePath("../Drone")
+
+[node name="Environment" type="Node2D" parent="."]
+
+[node name="Floor" type="StaticBody2D" parent="Environment"]
+position = Vector2(0, 600)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Environment/Floor"]
+polygon = PackedVector2Array(-2000, -25, 2000, -25, 2000, 1000, -2000, 1000)
+
+[node name="Polygon2D" type="Polygon2D" parent="Environment/Floor"]
+color = Color(0.15, 0.2, 0.3, 1)
+polygon = PackedVector2Array(-2000, -25, 2000, -25, 2000, 1000, -2000, 1000)
+
+[node name="WallLeft" type="StaticBody2D" parent="Environment"]
+position = Vector2(-200, 600)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Environment/WallLeft"]
+polygon = PackedVector2Array(-50, -600, 50, -600, 50, 25, -50, 25)
+
+[node name="Polygon2D" type="Polygon2D" parent="Environment/WallLeft"]
+color = Color(0.15, 0.2, 0.3, 1)
+polygon = PackedVector2Array(-50, -600, 50, -600, 50, 25, -50, 25)
+
+[node name="Occluders" type="Node2D" parent="."]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(200, 500)
+script = ExtResource("1_play")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("CapsuleShape2D_player")
+
+[node name="Drone" type="CharacterBody2D" parent="."]
+position = Vector2(300, 200)
+script = ExtResource("2_dron")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Drone"]
+shape = SubResource("CircleShape2D_drone")
+
+[node name="PointLight2D" type="PointLight2D" parent="Drone"]
+color = Color(0.9, 0.85, 0.6, 1)
+energy = 1.5
+shadow_enabled = true
+shadow_color = Color(0, 0, 0, 1)
+texture = SubResource("GradientTexture2D_light")
+
+[node name="ShadowColliderGenerator" type="Node2D" parent="." node_paths=PackedStringArray("light_source", "occluders_parent")]
+script = ExtResource("4_scg")
+light_source = NodePath("../Drone/PointLight2D")
+occluders_parent = NodePath("../Occluders")
+shadow_length = 2000.0
+fill_color = Color(0.0, 0.15, 0.25, 0.8)
+outline_color = Color(0.5, 3.0, 3.0, 1)
+outline_width = 4.0
+
+[node name="CameraController" type="Camera2D" parent="." node_paths=PackedStringArray("player", "drone")]
+zoom = Vector2(0.8, 0.8)
+script = ExtResource("5_cam")
+player = NodePath("../Player")
+drone = NodePath("../Drone")
+
+[node name="RespawnPoint" type="Node2D" parent="."]
+position = Vector2(200, 500)
+
+[node name="LevelDoor" type="Area2D" parent="."]
+position = Vector2(800, 500)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("15_ld")
+target_level = "res://scenes/levels/prototype.tscn"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LevelDoor"]
+shape = SubResource("RectangleShape2D_barrier")
+
+[node name="DoorVisual" type="Polygon2D" parent="LevelDoor"]
+color = Color(0.5, 3.0, 3.0, 0.8)
+polygon = PackedVector2Array(-50, -100, 50, -100, 50, 100, -50, 100)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="UI"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 300.0
+offset_bottom = 60.0
+text = "THE FORGE
+Walk into the glowing Cyan Door to enter Level 1"

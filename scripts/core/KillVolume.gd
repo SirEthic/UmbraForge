@@ -4,9 +4,9 @@ class_name KillVolume
 @export var respawn_point: Node2D
 
 func _ready() -> void:
-	# Ensure the Area2D only detects relevant bodies (Player, Crate, Drone)
-	collision_layer = 0
-	collision_mask = 1 | 2 | 8 # Crate(1), Player(2), Drone(8)
+	# Only set default masks if none are configured in editor
+	if collision_mask == 1:
+		collision_mask = 1 | 2 | 8 # Crate(1), Player(2), Drone(8)
 	body_entered.connect(_on_body_entered)
 
 func _on_body_entered(body: Node2D) -> void:

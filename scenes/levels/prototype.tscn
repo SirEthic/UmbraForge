@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://d0m5e4x0h2j3"]
+[gd_scene load_steps=12 format=3 uid="uid://d0m5e4x0h2j3"]
 
 [ext_resource type="Script" path="res://scripts/characters/Player.gd" id="1_play"]
 [ext_resource type="Script" path="res://scripts/characters/Drone.gd" id="2_dron"]
@@ -8,9 +8,11 @@
 [ext_resource type="PackedScene" uid="uid://boxcrate123" path="res://scenes/objects/Crate.tscn" id="6_crate"]
 [ext_resource type="Script" path="res://scripts/core/KillVolume.gd" id="7_kv"]
 [ext_resource type="PackedScene" uid="uid://prismbox456" path="res://scenes/objects/Prism.tscn" id="8_prism"]
-[ext_resource type="PackedScene" uid="uid://spotlight789" path="res://scenes/objects/StaticSpotlight.tscn" id="9_spot"]
-[ext_resource type="Texture2D" path="res://assets/textures/bg_cave.jpg" id="10_bg"]
+[ext_resource type="Texture2D" uid="uid://c8d3ymryv1prp" path="res://assets/textures/bg_cave.jpg" id="10_bg"]
 [ext_resource type="Texture2D" path="res://assets/textures/metal.jpg" id="11_metal"]
+[ext_resource type="Script" path="res://scripts/core/DynamicParallax.gd" id="12_dyn"]
+[ext_resource type="Script" path="res://scripts/core/LevelFinish.gd" id="13_lf"]
+[ext_resource type="Script" path="res://scripts/objects/Oscillator.gd" id="14_osc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kill"]
 size = Vector2(10000, 500)
@@ -20,7 +22,10 @@ radius = 16.0
 height = 64.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_drone"]
-radius = 12.0
+radius = 4.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_barrier"]
+size = Vector2(100, 1000)
 
 [sub_resource type="Gradient" id="Gradient_light"]
 offsets = PackedFloat32Array(0, 0.7)
@@ -35,22 +40,40 @@ width = 1024
 height = 1024
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_box"]
-polygon = PackedVector2Array(-50, -50, 50, -50, 50, 50, -50, 50)
+polygon = PackedVector2Array(-50, -25, 50, -25, 50, 25, -50, 25)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_tall"]
+polygon = PackedVector2Array(-25, -100, 25, -100, 25, 100, -25, 100)
+
+[sub_resource type="Environment" id="Environment_glow"]
+background_mode = 3
+glow_enabled = true
+glow_levels/1 = 1.0
+glow_levels/2 = 1.0
+glow_levels/4 = 1.0
+glow_levels/6 = 1.0
+glow_levels/7 = 1.0
+glow_intensity = 0.8
+glow_strength = 1.1
+glow_blend_mode = 0
 
 [node name="Prototype" type="Node2D"]
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_glow")
+
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+script = ExtResource("12_dyn")
 
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
-motion_scale = Vector2(0.2, 1.0)
-motion_mirroring = Vector2(3072, 0)
+motion_scale = Vector2(0.2, 0.2)
+motion_mirroring = Vector2(4128, 0)
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer"]
-position = Vector2(-1536, -864)
 scale = Vector2(3, 3)
 texture = ExtResource("10_bg")
 centered = false
-modulate = Color(0.5, 0.5, 0.6, 1)
+modulate = Color(0.3, 0.35, 0.45, 1)
 
 [node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("player", "drone")]
 script = ExtResource("3_gm")
@@ -60,64 +83,129 @@ drone = NodePath("../Drone")
 [node name="Environment" type="Node2D" parent="."]
 
 [node name="Platform1" type="StaticBody2D" parent="Environment"]
-position = Vector2(300, 600)
+position = Vector2(400, 600)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Environment/Platform1"]
-polygon = PackedVector2Array(-300, -25, 300, -25, 300, 25, -300, 25)
+polygon = PackedVector2Array(-400, -25, 400, -25, 400, 1000, -400, 1000)
 
 [node name="Polygon2D" type="Polygon2D" parent="Environment/Platform1"]
-texture = ExtResource("11_metal")
-texture_repeat = 2
-polygon = PackedVector2Array(-300, -25, 300, -25, 300, 25, -300, 25)
+color = Color(0.2, 0.25, 0.35, 1)
+polygon = PackedVector2Array(-400, -25, 400, -25, 400, 1000, -400, 1000)
 
 [node name="Platform2" type="StaticBody2D" parent="Environment"]
-position = Vector2(1700, 450)
+position = Vector2(1800, 600)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Environment/Platform2"]
-polygon = PackedVector2Array(-300, -25, 300, -25, 300, 25, -300, 25)
+polygon = PackedVector2Array(-400, -25, 400, -25, 400, 1000, -400, 1000)
 
 [node name="Polygon2D" type="Polygon2D" parent="Environment/Platform2"]
-texture = ExtResource("11_metal")
-texture_repeat = 2
-polygon = PackedVector2Array(-300, -25, 300, -25, 300, 25, -300, 25)
+color = Color(0.2, 0.25, 0.35, 1)
+polygon = PackedVector2Array(-400, -25, 400, -25, 400, 1000, -400, 1000)
 
 [node name="Platform3" type="StaticBody2D" parent="Environment"]
-position = Vector2(3000, 450)
+position = Vector2(3000, 900)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Environment/Platform3"]
-polygon = PackedVector2Array(-300, -25, 300, -25, 300, 25, -300, 25)
+polygon = PackedVector2Array(-400, -25, 400, -25, 400, 1000, -400, 1000)
 
 [node name="Polygon2D" type="Polygon2D" parent="Environment/Platform3"]
-texture = ExtResource("11_metal")
-texture_repeat = 2
-polygon = PackedVector2Array(-300, -25, 300, -25, 300, 25, -300, 25)
+color = Color(0.2, 0.25, 0.35, 1)
+polygon = PackedVector2Array(-400, -25, 400, -25, 400, 1000, -400, 1000)
 
-[node name="StaticSpotlight" parent="Environment" instance=ExtResource("9_spot")]
-position = Vector2(-200, 300)
+[node name="Island" type="StaticBody2D" parent="Environment"]
+position = Vector2(4000, 900)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Environment/Island"]
+polygon = PackedVector2Array(-100, -25, 100, -25, 100, 1000, -100, 1000)
+
+[node name="Polygon2D" type="Polygon2D" parent="Environment/Island"]
+color = Color(0.2, 0.25, 0.35, 1)
+polygon = PackedVector2Array(-100, -25, 100, -25, 100, 1000, -100, 1000)
+
+[node name="PlatformEnd" type="StaticBody2D" parent="Environment"]
+position = Vector2(4900, 900)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Environment/PlatformEnd"]
+polygon = PackedVector2Array(-300, -25, 300, -25, 300, 1000, -300, 1000)
+
+[node name="Polygon2D" type="Polygon2D" parent="Environment/PlatformEnd"]
+color = Color(0.2, 0.25, 0.35, 1)
+polygon = PackedVector2Array(-300, -25, 300, -25, 300, 1000, -300, 1000)
+
+[node name="Wall" type="StaticBody2D" parent="Environment"]
+position = Vector2(2600, 600)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Environment/Wall"]
+polygon = PackedVector2Array(-25, -600, 25, -600, 25, 100, -25, 100)
+
+[node name="Polygon2D" type="Polygon2D" parent="Environment/Wall"]
+color = Color(0.2, 0.25, 0.35, 1)
+polygon = PackedVector2Array(-25, -600, 25, -600, 25, 100, -25, 100)
 
 [node name="Occluders" type="Node2D" parent="."]
 
-[node name="StaticObstacle" type="Node2D" parent="Occluders"]
-position = Vector2(1000, 150)
+[node name="BridgeOccluder1" type="Node2D" parent="Occluders"]
+position = Vector2(1100, 300)
 
-[node name="StaticBody2D" type="StaticBody2D" parent="Occluders/StaticObstacle"]
+[node name="StaticBody2D" type="StaticBody2D" parent="Occluders/BridgeOccluder1"]
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Occluders/StaticObstacle/StaticBody2D"]
-polygon = PackedVector2Array(-50, -50, 50, -50, 50, 50, -50, 50)
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Occluders/BridgeOccluder1/StaticBody2D"]
+polygon = PackedVector2Array(-50, -25, 50, -25, 50, 25, -50, 25)
 
-[node name="Polygon2D" type="Polygon2D" parent="Occluders/StaticObstacle"]
-color = Color(0.4, 0.2, 0.2, 1)
-polygon = PackedVector2Array(-50, -50, 50, -50, 50, 50, -50, 50)
+[node name="Polygon2D" type="Polygon2D" parent="Occluders/BridgeOccluder1"]
+color = Color(0.2, 0.25, 0.35, 1)
+polygon = PackedVector2Array(-50, -25, 50, -25, 50, 25, -50, 25)
 
-[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders/StaticObstacle"]
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders/BridgeOccluder1"]
 occluder = SubResource("OccluderPolygon2D_box")
 
-[node name="Crate" parent="Occluders" instance=ExtResource("6_crate")]
-position = Vector2(1800, 300)
+[node name="MovingOccluder" type="Node2D" parent="Occluders"]
+position = Vector2(2400, 300)
+script = ExtResource("14_osc")
+amplitude = Vector2(0, 150)
+speed = 2.0
 
-[node name="Prism" parent="Occluders" instance=ExtResource("8_prism")]
-position = Vector2(3000, 300)
-drone = NodePath("../../Drone")
+[node name="Polygon2D" type="Polygon2D" parent="Occluders/MovingOccluder"]
+color = Color(0.2, 0.25, 0.35, 1)
+polygon = PackedVector2Array(-50, -25, 50, -25, 50, 25, -50, 25)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Occluders/MovingOccluder"]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Occluders/MovingOccluder/StaticBody2D"]
+polygon = PackedVector2Array(-50, -25, 50, -25, 50, 25, -50, 25)
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders/MovingOccluder"]
+occluder = SubResource("OccluderPolygon2D_box")
+
+[node name="BridgeOccluder2" type="Node2D" parent="Occluders"]
+position = Vector2(3650, 300)
+script = ExtResource("14_osc")
+amplitude = Vector2(250, 0)
+speed = 1.5
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Occluders/BridgeOccluder2"]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Occluders/BridgeOccluder2/StaticBody2D"]
+polygon = PackedVector2Array(-50, -25, 50, -25, 50, 25, -50, 25)
+
+[node name="Polygon2D" type="Polygon2D" parent="Occluders/BridgeOccluder2"]
+color = Color(0.2, 0.25, 0.35, 1)
+polygon = PackedVector2Array(-50, -25, 50, -25, 50, 25, -50, 25)
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders/BridgeOccluder2"]
+occluder = SubResource("OccluderPolygon2D_box")
+
+
+
+[node name="TallOccluder" type="Node2D" parent="Occluders"]
+position = Vector2(4050, 725)
+
+[node name="Polygon2D" type="Polygon2D" parent="Occluders/TallOccluder"]
+color = Color(0.02, 0.02, 0.04, 1)
+polygon = PackedVector2Array(-25, -100, 25, -100, 25, 100, -25, 100)
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders/TallOccluder"]
+occluder = SubResource("OccluderPolygon2D_tall")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(200, 500)
@@ -145,6 +233,9 @@ script = ExtResource("4_scg")
 light_source = NodePath("../Drone/PointLight2D")
 occluders_parent = NodePath("../Occluders")
 shadow_length = 2000.0
+fill_color = Color(0.0, 0.15, 0.25, 0.8)
+outline_color = Color(0.5, 3.0, 3.0, 1)
+outline_width = 4.0
 
 [node name="CameraController" type="Camera2D" parent="." node_paths=PackedStringArray("player", "drone")]
 zoom = Vector2(0.8, 0.8)
@@ -156,12 +247,24 @@ drone = NodePath("../Drone")
 position = Vector2(200, 500)
 
 [node name="KillVolume" type="Area2D" parent="." node_paths=PackedStringArray("respawn_point")]
-position = Vector2(1700, 1500)
+position = Vector2(2600, 1500)
+collision_layer = 0
+collision_mask = 11
 script = ExtResource("7_kv")
 respawn_point = NodePath("../RespawnPoint")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KillVolume"]
 shape = SubResource("RectangleShape2D_kill")
+
+
+[node name="LevelFinish" type="Area2D" parent="."]
+position = Vector2(5100, 850)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("13_lf")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LevelFinish"]
+shape = SubResource("RectangleShape2D_barrier")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -171,4 +274,4 @@ offset_top = 20.0
 offset_right = 300.0
 offset_bottom = 60.0
 text = "A/D - Move | W/Space - Jump
-TAB - Switch Character | ESC - Quit"
+Hold Left Click - Drag Drone | Right Click - Recall Drone"

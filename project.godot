@@ -15,13 +15,13 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="UmbraForge"
-run/main_scene="res://scenes/levels/prototype.tscn"
+run/main_scene="res://scenes/levels/hub.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
 [display]
 
-window/size/viewport_width=2560
-window/size/viewport_height=1600
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/size/mode=3
 
 [physics]
