@@ -42,11 +42,11 @@ polygon = PackedVector2Array(-50, -50, 50, -50, 50, 50, -50, 50)
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
-motion_scale = Vector2(0.3, 0.0)
+motion_scale = Vector2(0.2, 1.0)
 motion_mirroring = Vector2(3072, 0)
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer"]
-position = Vector2(0, -864)
+position = Vector2(-1536, -864)
 scale = Vector2(3, 3)
 texture = ExtResource("10_bg")
 centered = false
