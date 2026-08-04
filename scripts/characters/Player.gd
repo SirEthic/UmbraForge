@@ -40,7 +40,8 @@ func _physics_process(delta: float) -> void:
 		velocity.y += gravity * delta
 
 	if not is_active:
-		_apply_friction(delta)
+		if is_on_floor():
+			_apply_friction(delta)
 		move_and_slide()
 		return
 

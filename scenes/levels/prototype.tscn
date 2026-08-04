@@ -6,6 +6,10 @@
 [ext_resource type="Script" path="res://scripts/utils/ShadowColliderGenerator.gd" id="4_scg"]
 [ext_resource type="Script" path="res://scripts/core/CameraController.gd" id="5_cam"]
 [ext_resource type="PackedScene" uid="uid://boxcrate123" path="res://scenes/objects/Crate.tscn" id="6_crate"]
+[ext_resource type="Script" path="res://scripts/core/KillVolume.gd" id="7_kv"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kill"]
+size = Vector2(10000, 500)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 16.0
@@ -127,6 +131,17 @@ zoom = Vector2(0.8, 0.8)
 script = ExtResource("5_cam")
 player = NodePath("../Player")
 drone = NodePath("../Drone")
+
+[node name="RespawnPoint" type="Node2D" parent="."]
+position = Vector2(200, 500)
+
+[node name="KillVolume" type="Area2D" parent="." node_paths=PackedStringArray("respawn_point")]
+position = Vector2(1700, 1500)
+script = ExtResource("7_kv")
+respawn_point = NodePath("../RespawnPoint")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillVolume"]
+shape = SubResource("RectangleShape2D_kill")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
