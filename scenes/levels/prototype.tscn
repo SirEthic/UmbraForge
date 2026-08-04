@@ -50,7 +50,7 @@ texture_repeat = 2
 texture = ExtResource("10_bg")
 centered = false
 region_enabled = true
-region_rect = Rect2(0, 0, 4096, 2304)
+region_rect = Rect2(0, 0, 2048, 1152)
 modulate = Color(0.5, 0.5, 0.6, 1)
 
 [node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("player", "drone")]

@@ -11,16 +11,14 @@ func _ready() -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is Player:
-		# Safely respawn the player and kill momentum
 		if respawn_point:
-			body.global_position = respawn_point.global_position
-			body.velocity = Vector2.ZERO
+			body.set_deferred("global_position", respawn_point.global_position)
+			body.set_deferred("velocity", Vector2.ZERO)
 	elif body is Drone:
-		# Safely respawn the Drone so the camera doesn't stretch forever
 		if respawn_point:
-			body.global_position = respawn_point.global_position + Vector2(0, -50)
-			body.velocity = Vector2.ZERO
-	elif body is RigidBody2D:
+			body.set_deferred("global_position", respawn_point.global_position + Vector2(0, -50))
+			body.set_deferred("velocity", Vector2.ZERO)
+	elif body.has_method("respawn"):
 		# Respawn critical puzzle pieces, or delete generic physics objects
 		if body.has_method("respawn"):
 			body.respawn()
