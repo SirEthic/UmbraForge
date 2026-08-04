@@ -38,9 +38,9 @@ func _physics_process(delta: float) -> void:
 	else:
 		_jump_buffer_timer -= delta
 
-	# Apply gravity safely
+	# Apply gravity safely with terminal velocity cap
 	if not is_on_floor():
-		velocity.y += gravity * delta
+		velocity.y = min(velocity.y + gravity * delta, 1200.0)
 
 	if not is_active:
 		if is_on_floor():

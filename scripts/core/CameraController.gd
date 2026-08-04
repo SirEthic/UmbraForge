@@ -19,5 +19,5 @@ func _physics_process(delta: float) -> void:
 	elif drone and drone.get("is_active"):
 		target_pos = drone.global_position
 		
-	# Smoothly interpolate to the active character
-	global_position = global_position.lerp(target_pos, smooth_speed * delta)
+	# Smoothly interpolate to the active character (framerate independent)
+	global_position = global_position.lerp(target_pos, 1.0 - exp(-smooth_speed * delta))
