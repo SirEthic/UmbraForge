@@ -28,6 +28,10 @@ func _physics_process(_delta: float) -> void:
 	if not light_source or not occluders_parent:
 		return
 		
+	if not light_source.enabled:
+		_clear_all_shadows()
+		return
+		
 	var needs_update := false
 	var light_pos := light_source.global_position
 	
@@ -138,6 +142,15 @@ func _generate_shadow_colliders(light_pos: Vector2, occluders: Array[LightOcclud
 					
 		var body = _get_or_create_body(occluder_node)
 		_sync_body_shapes(body, merged_poly)
+
+func _clear_all_shadows() -> void:
+	for body in _occluder_bodies.values():
+		if is_instance_valid(body):
+			for child in body.get_children():
+				if child is CollisionPolygon2D and not child.disabled:
+					child.set_deferred("disabled", true)
+				elif child is Polygon2D or child is Line2D:
+					child.visible = false
 
 func _sync_body_shapes(body: AnimatableBody2D, target_poly: PackedVector2Array) -> void:
 	var col: CollisionPolygon2D

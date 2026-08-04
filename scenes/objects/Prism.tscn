@@ -1,0 +1,56 @@
+[gd_scene load_steps=8 format=3 uid="uid://prismbox456"]
+
+[ext_resource type="Script" path="res://scripts/objects/Prism.gd" id="1_pgd"]
+[ext_resource type="Script" path="res://scripts/utils/ShadowColliderGenerator.gd" id="2_scg"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_prism"]
+friction = 0.5
+rough = true
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_prism"]
+size = Vector2(80, 80)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_prism"]
+polygon = PackedVector2Array(0, -40, 40, 0, 0, 40, -40, 0)
+
+[sub_resource type="Gradient" id="Gradient_light"]
+offsets = PackedFloat32Array(0, 0.7)
+colors = PackedColorArray(0, 1, 1, 1, 0, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+gradient = SubResource("Gradient_light")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.8, 0.8)
+width = 1024
+height = 1024
+
+[node name="Prism" type="RigidBody2D" node_paths=PackedStringArray("shadow_generator")]
+collision_layer = 1
+collision_mask = 7
+mass = 20.0
+physics_material_override = SubResource("PhysicsMaterial_prism")
+lock_rotation = true
+script = ExtResource("1_pgd")
+shadow_generator = NodePath("ShadowColliderGenerator")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_prism")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(0.2, 0.8, 0.8, 0.5)
+polygon = PackedVector2Array(0, -40, 40, 0, 0, 40, -40, 0)
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_prism")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+color = Color(0.2, 1, 1, 1)
+energy = 2.0
+shadow_enabled = true
+texture = SubResource("GradientTexture2D_light")
+
+[node name="ShadowColliderGenerator" type="Node2D" parent="." node_paths=PackedStringArray("light_source")]
+script = ExtResource("2_scg")
+light_source = NodePath("../PointLight2D")
+outline_color = Color(0.2, 1, 1, 1)

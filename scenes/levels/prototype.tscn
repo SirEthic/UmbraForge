@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://scripts/core/CameraController.gd" id="5_cam"]
 [ext_resource type="PackedScene" uid="uid://boxcrate123" path="res://scenes/objects/Crate.tscn" id="6_crate"]
 [ext_resource type="Script" path="res://scripts/core/KillVolume.gd" id="7_kv"]
+[ext_resource type="PackedScene" uid="uid://prismbox456" path="res://scenes/objects/Prism.tscn" id="8_prism"]
+[ext_resource type="PackedScene" uid="uid://spotlight789" path="res://scenes/objects/StaticSpotlight.tscn" id="9_spot"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kill"]
 size = Vector2(10000, 500)
@@ -80,6 +82,9 @@ polygon = PackedVector2Array(-300, -25, 300, -25, 300, 25, -300, 25)
 color = Color(0.2, 0.3, 0.2, 1)
 polygon = PackedVector2Array(-300, -25, 300, -25, 300, 25, -300, 25)
 
+[node name="StaticSpotlight" parent="Environment" instance=ExtResource("9_spot")]
+position = Vector2(-200, 300)
+
 [node name="Occluders" type="Node2D" parent="."]
 
 [node name="StaticObstacle" type="Node2D" parent="Occluders"]
@@ -99,6 +104,10 @@ occluder = SubResource("OccluderPolygon2D_box")
 
 [node name="Crate" parent="Occluders" instance=ExtResource("6_crate")]
 position = Vector2(1800, 300)
+
+[node name="Prism" parent="Occluders" instance=ExtResource("8_prism")]
+position = Vector2(3000, 300)
+drone = NodePath("../../Drone")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(200, 500)
