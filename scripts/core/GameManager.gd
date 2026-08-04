@@ -11,35 +11,38 @@ func _ready() -> void:
 		drone.is_active = false
 
 func _setup_inputs() -> void:
-	# Programmatic input injection avoids modifying project.godot blindly
-	var actions = {
-		"move_left": KEY_A,
-		"move_right": KEY_D,
-		"move_up": KEY_W,
-		"move_down": KEY_S,
-		"jump": KEY_SPACE,
-		"switch_char": KEY_TAB,
-		"quit": KEY_ESCAPE
+	var key_actions = {
+		"move_left": [KEY_A, KEY_LEFT],
+		"move_right": [KEY_D, KEY_RIGHT],
+		"move_up": [KEY_W, KEY_UP],
+		"move_down": [KEY_S, KEY_DOWN],
+		"jump": [KEY_SPACE],
+		"switch_char": [KEY_TAB],
+		"quit": [KEY_ESCAPE]
 	}
-	for action in actions:
-		if not InputMap.has_action(action):
-			InputMap.add_action(action)
-		else:
-			InputMap.action_erase_events(action)
+	var joy_actions = {
+		"move_left": [JOY_BUTTON_DPAD_LEFT],
+		"move_right": [JOY_BUTTON_DPAD_RIGHT],
+		"move_up": [JOY_BUTTON_DPAD_UP],
+		"move_down": [JOY_BUTTON_DPAD_DOWN],
+		"jump": [JOY_BUTTON_A],
+		"switch_char": [JOY_BUTTON_Y],
+		"quit": [JOY_BUTTON_BACK]
+	}
+	
+	for action in key_actions:
+		if not InputMap.has_action(action): InputMap.add_action(action)
+		else: InputMap.action_erase_events(action)
 		
-		var event = InputEventKey.new()
-		event.physical_keycode = actions[action]
-		InputMap.action_add_event(action, event)
-		
-		# Adding arrow key alternates cleanly
-		if action == "move_left":
-			var ev2 = InputEventKey.new(); ev2.physical_keycode = KEY_LEFT; InputMap.action_add_event(action, ev2)
-		if action == "move_right":
-			var ev2 = InputEventKey.new(); ev2.physical_keycode = KEY_RIGHT; InputMap.action_add_event(action, ev2)
-		if action == "move_up":
-			var ev2 = InputEventKey.new(); ev2.physical_keycode = KEY_UP; InputMap.action_add_event(action, ev2)
-		if action == "move_down":
-			var ev2 = InputEventKey.new(); ev2.physical_keycode = KEY_DOWN; InputMap.action_add_event(action, ev2)
+		for keycode in key_actions[action]:
+			var event = InputEventKey.new()
+			event.physical_keycode = keycode
+			InputMap.action_add_event(action, event)
+			
+		for joycode in joy_actions[action]:
+			var event = InputEventJoypadButton.new()
+			event.button_index = joycode
+			InputMap.action_add_event(action, event)
 
 # Unhandled input gracefully manages event triggers natively
 func _unhandled_input(event: InputEvent) -> void:

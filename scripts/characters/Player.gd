@@ -54,6 +54,10 @@ func _physics_process(delta: float) -> void:
 		_jump_buffer_timer = 0.0 # Consume jump buffer
 		_coyote_timer = 0.0      # Consume coyote time
 
+	# Variable jump height for precision short-hopping
+	if is_active and Input.is_action_just_released("jump") and velocity.y < 0.0:
+		velocity.y *= 0.5
+
 	# Get input direction gracefully with acceleration/deceleration
 	var direction := Input.get_axis("move_left", "move_right")
 
