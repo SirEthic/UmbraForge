@@ -14,7 +14,10 @@ var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
-var is_active: bool = true
+var is_active: bool = true:
+	set(value):
+		is_active = value
+		queue_redraw()
 
 func _ready() -> void:
 	# Architecture: Set Player to Layer 2 (bit value 2).
@@ -30,7 +33,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		_coyote_timer -= delta
 		
-	if Input.is_action_just_pressed("jump"):
+	if is_active and Input.is_action_just_pressed("jump"):
 		_jump_buffer_timer = jump_buffer_time
 	else:
 		_jump_buffer_timer -= delta
@@ -76,6 +79,3 @@ func _apply_friction(delta: float) -> void:
 func _draw() -> void:
 	var rect := Rect2(-16, -32, 32, 64)
 	draw_rect(rect, Color.DODGER_BLUE if is_active else Color.SLATE_GRAY)
-	
-func _process(_delta: float) -> void:
-	queue_redraw()

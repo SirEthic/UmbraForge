@@ -5,7 +5,10 @@ class_name Drone
 @export var acceleration: float = 3000.0
 @export var friction: float = 2500.0
 
-var is_active: bool = false
+var is_active: bool = false:
+	set(value):
+		is_active = value
+		queue_redraw()
 
 func _ready() -> void:
 	# Architecture: Set Drone to Layer 4 (bit value 8).
@@ -31,6 +34,3 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, 12, Color.GOLD if is_active else Color.DIM_GRAY)
-
-func _process(_delta: float) -> void:
-	queue_redraw()
