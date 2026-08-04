@@ -122,41 +122,22 @@ func _generate_shadow_colliders(light_pos: Vector2, occluders: Array[LightOcclud
 		if poly.size() < 3:
 			continue
 			
-		var transform: Transform2D = occluder_node.global_transform
-		var global_verts: Array[Vector2] = []
+		var occ_transform: Transform2D = occluder_node.global_transform
+		var all_points: PackedVector2Array = []
+		
 		for i in range(poly.size()):
-			global_verts.append(transform * poly[i])
+			var pt = occ_transform * poly[i]
+			all_points.append(pt)
+			var dir = (pt - light_pos).normalized()
+			all_points.append(pt + dir * shadow_length)
 			
-		var is_clockwise := Geometry2D.is_polygon_clockwise(global_verts)
+		# ENTERPRISE MATH: For convex occluders, the exact shadow volume 
+		# is perfectly described by the convex hull of the vertices and their projections!
+		# This completely prevents overlapping gaps, jagged edges, and massive CPU lag.
+		var shadow_poly = Geometry2D.convex_hull(all_points)
 		
-		# Fix Segmented Shadows: Accumulate into a single merged silhouette!
-		var merged_poly := PackedVector2Array(global_verts)
-		
-		var count := global_verts.size()
-		for i in range(count):
-			var a := global_verts[i]
-			var b := global_verts[(i + 1) % count]
-			
-			var mid := (a + b) * 0.5
-			var edge_dir := (b - a).normalized()
-			var normal := Vector2(-edge_dir.y, edge_dir.x) if is_clockwise else Vector2(edge_dir.y, -edge_dir.x)
-			
-			var light_dir := (mid - light_pos).normalized()
-			
-			if normal.dot(light_dir) < 0.0:
-				var dir_a := (a - light_pos).normalized()
-				var dir_b := (b - light_pos).normalized()
-				
-				var proj_a := a + dir_a * shadow_length
-				var proj_b := b + dir_b * shadow_length
-				
-				var quad := PackedVector2Array([b, a, proj_a, proj_b]) if is_clockwise else PackedVector2Array([a, b, proj_b, proj_a])
-				
-				var res = Geometry2D.merge_polygons(merged_poly, quad)
-				if res.size() > 0:
-					merged_poly = res[0] # The 0th index is the unified outer boundary. Holes are discarded.
-					
-		_sync_body_shapes(body, merged_poly)
+		if shadow_poly.size() > 2:
+			_sync_body_shapes(body, shadow_poly)
 
 func _clear_all_shadows() -> void:
 	for body in _occluder_bodies.values():
