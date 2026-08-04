@@ -9,6 +9,7 @@ class_name ShadowColliderGenerator
 @export var fill_color: Color = Color(0.05, 0.05, 0.08, 1.0)
 @export var outline_color: Color = Color(0.6, 0.3, 1.0, 1.0)
 @export var outline_width: float = 2.0
+@export var outline_z_index: int = 0
 
 var _last_light_pos: Vector2
 var _last_occluder_transforms: Array[Transform2D] = []
@@ -183,6 +184,7 @@ func _sync_body_shapes(body: AnimatableBody2D, target_poly: PackedVector2Array) 
 		vis_line.closed = true
 		vis_line.joint_mode = Line2D.LINE_JOINT_SHARP
 		vis_line.material = _unshaded_material
+		vis_line.z_index = outline_z_index
 		body.add_child(vis_line)
 		
 	var local_poly := PackedVector2Array()

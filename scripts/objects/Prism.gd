@@ -1,7 +1,8 @@
 extends RigidBody2D
 class_name Prism
 
-@export var max_range: float = 800.0
+@export var max_range: float = 850.0
+@export var activation_range: float = 750.0
 @export var drone: Node2D
 @export var shadow_generator: ShadowColliderGenerator
 
@@ -34,10 +35,13 @@ func _physics_process(_delta: float) -> void:
 		if not drone:
 			return
 		
-	# Find Drone globally if not set
+	# Hysteresis buffer to prevent rapid strobing on the boundary
 	var dist := global_position.distance_to(drone.global_position)
-	if dist > max_range:
+	
+	if light.enabled and dist > max_range:
 		light.enabled = false
+		return
+	elif not light.enabled and dist > activation_range:
 		return
 		
 	# Check line of sight using Godot's Raycast server
