@@ -5,27 +5,38 @@ class_name ShadowColliderGenerator
 @export var occluders_parent: Node2D
 @export var shadow_length: float = 2000.0
 
+@export_group("Visuals")
+@export var fill_color: Color = Color(0.05, 0.05, 0.08, 1.0)
+@export var outline_color: Color = Color(0.6, 0.3, 1.0, 1.0)
+@export var outline_width: float = 2.0
+
 var shadow_body: AnimatableBody2D
 var _generated_colliders: Array[CollisionPolygon2D] = []
+var _generated_visuals_poly: Array[Polygon2D] = []
+var _generated_visuals_line: Array[Line2D] = []
 
 var _last_light_pos: Vector2
 var _last_occluder_transforms: Array[Transform2D] = []
+
+var _unshaded_material: CanvasItemMaterial
 
 func _ready() -> void:
 	shadow_body = AnimatableBody2D.new()
 	shadow_body.sync_to_physics = true
 	
 	# Architecture: Place shadows exclusively on Collision Layer 3 (bit value 4).
-	# This prevents the Drone from colliding with its own shadow.
 	shadow_body.collision_layer = 4
 	shadow_body.collision_mask = 0
 	add_child(shadow_body)
+	
+	# Create a shared material so the physical shadows ignore all 2D lighting
+	_unshaded_material = CanvasItemMaterial.new()
+	_unshaded_material.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 
 func _physics_process(_delta: float) -> void:
 	if not light_source or not occluders_parent:
 		return
 		
-	# Performance: Only regenerate geometry if the light or occluders have actually moved.
 	var needs_update := false
 	var light_pos := light_source.global_position
 	
@@ -59,7 +70,6 @@ func _generate_shadow_colliders(light_pos: Vector2) -> void:
 		if occluder_node is LightOccluder2D and occluder_node.occluder:
 			var poly: PackedVector2Array = occluder_node.occluder.polygon
 			
-			# Crash prevention: skip invalid/degenerate polygons
 			if poly.size() < 3:
 				continue
 				
@@ -93,16 +103,38 @@ func _generate_shadow_colliders(light_pos: Vector2) -> void:
 					var quad := PackedVector2Array([b, a, proj_a, proj_b]) if is_clockwise else PackedVector2Array([a, b, proj_b, proj_a])
 					all_shadow_polys.append(quad)
 
+	# Expand pools if necessary
 	while _generated_colliders.size() < all_shadow_polys.size():
 		var col := CollisionPolygon2D.new()
 		shadow_body.add_child(col)
 		_generated_colliders.append(col)
 		
+		var vis_poly := Polygon2D.new()
+		vis_poly.color = fill_color
+		vis_poly.material = _unshaded_material
+		shadow_body.add_child(vis_poly)
+		_generated_visuals_poly.append(vis_poly)
+		
+		var vis_line := Line2D.new()
+		vis_line.default_color = outline_color
+		vis_line.width = outline_width
+		vis_line.closed = true
+		vis_line.joint_mode = Line2D.LINE_JOINT_SHARP
+		vis_line.material = _unshaded_material
+		shadow_body.add_child(vis_line)
+		_generated_visuals_line.append(vis_line)
+		
+	# Disable unused nodes
 	for i in range(all_shadow_polys.size(), _generated_colliders.size()):
 		_generated_colliders[i].set_deferred("disabled", true)
+		_generated_visuals_poly[i].visible = false
+		_generated_visuals_line[i].visible = false
 		
+	# Update active nodes
 	for i in range(all_shadow_polys.size()):
 		var col: CollisionPolygon2D = _generated_colliders[i]
+		var vis_poly: Polygon2D = _generated_visuals_poly[i]
+		var vis_line: Line2D = _generated_visuals_line[i]
 		
 		var local_poly := PackedVector2Array()
 		for pt in all_shadow_polys[i]:
@@ -110,3 +142,9 @@ func _generate_shadow_colliders(light_pos: Vector2) -> void:
 			
 		col.polygon = local_poly
 		col.set_deferred("disabled", false)
+		
+		vis_poly.polygon = local_poly
+		vis_poly.visible = true
+		
+		vis_line.points = local_poly
+		vis_line.visible = true
