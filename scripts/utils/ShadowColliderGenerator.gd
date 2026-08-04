@@ -45,11 +45,9 @@ func _physics_process(_delta: float) -> void:
 		_last_light_pos = light_pos
 		
 	var current_transforms: Array[Transform2D] = []
-	var children := occluders_parent.get_children()
-	for i in range(children.size()):
-		var node := children[i] as Node2D
-		if node is LightOccluder2D:
-			current_transforms.append(node.global_transform)
+	var occluders := _get_all_occluders(occluders_parent)
+	for occ in occluders:
+		current_transforms.append(occ.global_transform)
 			
 	if current_transforms.size() != _last_occluder_transforms.size():
 		needs_update = true
@@ -61,13 +59,21 @@ func _physics_process(_delta: float) -> void:
 				
 	if needs_update:
 		_last_occluder_transforms = current_transforms
-		_generate_shadow_colliders(light_pos)
+		_generate_shadow_colliders(light_pos, occluders)
 
-func _generate_shadow_colliders(light_pos: Vector2) -> void:
+func _get_all_occluders(node: Node) -> Array[LightOccluder2D]:
+	var result: Array[LightOccluder2D] = []
+	for child in node.get_children():
+		if child is LightOccluder2D:
+			result.append(child)
+		result.append_array(_get_all_occluders(child))
+	return result
+
+func _generate_shadow_colliders(light_pos: Vector2, occluders: Array[LightOccluder2D]) -> void:
 	var all_shadow_polys: Array[PackedVector2Array] = []
 	
-	for occluder_node in occluders_parent.get_children():
-		if occluder_node is LightOccluder2D and occluder_node.occluder:
+	for occluder_node in occluders:
+		if occluder_node.occluder:
 			var poly: PackedVector2Array = occluder_node.occluder.polygon
 			
 			if poly.size() < 3:

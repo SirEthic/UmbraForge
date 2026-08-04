@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/core/GameManager.gd" id="3_gm"]
 [ext_resource type="Script" path="res://scripts/utils/ShadowColliderGenerator.gd" id="4_scg"]
 [ext_resource type="Script" path="res://scripts/core/CameraController.gd" id="5_cam"]
+[ext_resource type="PackedScene" uid="uid://boxcrate123" path="res://scenes/objects/Crate.tscn" id="6_crate"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 16.0
@@ -55,20 +56,25 @@ shape = SubResource("RectangleShape2D_floor")
 color = Color(0.2, 0.3, 0.2, 1)
 polygon = PackedVector2Array(-1000, -25, 1000, -25, 1000, 25, -1000, 25)
 
-[node name="Obstacle" type="Node2D" parent="."]
+[node name="Occluders" type="Node2D" parent="."]
+
+[node name="StaticObstacle" type="Node2D" parent="Occluders"]
 position = Vector2(500, 450)
 
-[node name="StaticBody2D" type="StaticBody2D" parent="Obstacle"]
+[node name="StaticBody2D" type="StaticBody2D" parent="Occluders/StaticObstacle"]
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Obstacle/StaticBody2D"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Occluders/StaticObstacle/StaticBody2D"]
 polygon = PackedVector2Array(-50, -50, 50, -50, 50, 50, -50, 50)
 
-[node name="Polygon2D" type="Polygon2D" parent="Obstacle"]
+[node name="Polygon2D" type="Polygon2D" parent="Occluders/StaticObstacle"]
 color = Color(0.4, 0.2, 0.2, 1)
 polygon = PackedVector2Array(-50, -50, 50, -50, 50, 50, -50, 50)
 
-[node name="LightOccluder2D" type="LightOccluder2D" parent="Obstacle"]
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders/StaticObstacle"]
 occluder = SubResource("OccluderPolygon2D_box")
+
+[node name="Crate" parent="Occluders" instance=ExtResource("6_crate")]
+position = Vector2(700, 500)
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(200, 500)
@@ -94,7 +100,7 @@ texture = SubResource("GradientTexture2D_light")
 [node name="ShadowColliderGenerator" type="Node2D" parent="." node_paths=PackedStringArray("light_source", "occluders_parent")]
 script = ExtResource("4_scg")
 light_source = NodePath("../Drone/PointLight2D")
-occluders_parent = NodePath("../Obstacle")
+occluders_parent = NodePath("../Occluders")
 shadow_length = 2000.0
 
 [node name="CameraController" type="Camera2D" parent="." node_paths=PackedStringArray("player", "drone")]

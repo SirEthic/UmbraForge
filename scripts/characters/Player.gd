@@ -59,6 +59,15 @@ func _physics_process(delta: float) -> void:
 		_apply_friction(delta)
 
 	move_and_slide()
+	
+	# Push RigidBody2D objects
+	for i in get_slide_collision_count():
+		var collision := get_slide_collision(i)
+		var collider := collision.get_collider()
+		if collider is RigidBody2D:
+			# Apply a solid horizontal push based on normal
+			var push_force = 1500.0
+			collider.apply_central_impulse(Vector2(-collision.get_normal().x, 0) * push_force * delta)
 
 func _apply_friction(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, friction * delta)

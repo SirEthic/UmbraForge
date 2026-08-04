@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://boxcrate123"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_crate"]
+friction = 0.5
+rough = true
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_crate"]
+size = Vector2(80, 80)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_crate"]
+polygon = PackedVector2Array(-40, -40, 40, -40, 40, 40, -40, 40)
+
+[node name="Crate" type="RigidBody2D"]
+collision_layer = 1
+collision_mask = 7
+mass = 20.0
+physics_material_override = SubResource("PhysicsMaterial_crate")
+lock_rotation = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_crate")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(0.6, 0.4, 0.2, 1)
+polygon = PackedVector2Array(-40, -40, 40, -40, 40, 40, -40, 40)
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_crate")
