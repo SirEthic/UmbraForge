@@ -36,6 +36,7 @@ polygon = PackedVector2Array(-50, -50, 50, -50, 50, 50, -50, 50)
 [node name="Prototype" type="Node2D"]
 
 [node name="ColorRect" type="ColorRect" parent="."]
+z_index = -2
 offset_left = -2000.0
 offset_top = -2000.0
 offset_right = 5000.0

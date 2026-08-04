@@ -7,6 +7,6 @@ func _ready() -> void:
 	initial_position = global_position
 
 func respawn() -> void:
-	global_position = initial_position
-	linear_velocity = Vector2.ZERO
-	angular_velocity = 0.0
+	set_deferred("global_position", initial_position)
+	set_deferred("linear_velocity", Vector2.ZERO)
+	set_deferred("angular_velocity", 0.0)
