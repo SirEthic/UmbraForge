@@ -22,7 +22,9 @@ func respawn() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if not drone:
-		return
+		drone = get_tree().current_scene.find_child("Drone", true, false)
+		if not drone:
+			return
 		
 	# Find Drone globally if not set
 	var dist := global_position.distance_to(drone.global_position)

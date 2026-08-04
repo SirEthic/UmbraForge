@@ -12,6 +12,7 @@ class_name ShadowColliderGenerator
 
 var _last_light_pos: Vector2
 var _last_occluder_transforms: Array[Transform2D] = []
+var _was_enabled: bool = true
 
 var _unshaded_material: CanvasItemMaterial
 
@@ -29,8 +30,12 @@ func _physics_process(_delta: float) -> void:
 		return
 		
 	if not light_source.enabled:
-		_clear_all_shadows()
+		if _was_enabled:
+			_clear_all_shadows()
+			_was_enabled = false
 		return
+		
+	_was_enabled = true
 		
 	var needs_update := false
 	var light_pos := light_source.global_position
