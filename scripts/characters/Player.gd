@@ -10,8 +10,11 @@ var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var is_active: bool = true
 
 func _ready() -> void:
-	# Ensure Player collides with World (Layer 1) and Shadows (Layer 3)
-	collision_mask |= 4
+	# Architecture: Set Player to Layer 2 (bit value 2).
+	collision_layer = 2
+	# Ensure Player collides with World (Layer 1) and Shadows (Layer 3/value 4)
+	# It explicitly ignores the Drone (Layer 4/value 8)
+	collision_mask = 1 | 4
 
 func _physics_process(delta: float) -> void:
 	# Apply gravity safely

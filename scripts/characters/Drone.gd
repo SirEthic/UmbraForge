@@ -8,8 +8,11 @@ class_name Drone
 var is_active: bool = false
 
 func _ready() -> void:
-	# Ensure Drone does NOT collide with Shadows (Layer 3) to prevent feedback loops
-	collision_mask &= ~4
+	# Architecture: Set Drone to Layer 4 (bit value 8).
+	collision_layer = 8
+	# Ensure Drone ONLY collides with the World (Layer 1).
+	# It explicitly ignores the Player (Layer 2) and Shadows (Layer 3).
+	collision_mask = 1
 
 func _physics_process(delta: float) -> void:
 	if not is_active:
